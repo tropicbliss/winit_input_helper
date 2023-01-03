@@ -1,7 +1,7 @@
 use winit::event::VirtualKeyCode;
 use winit::event_loop::{ControlFlow, EventLoop};
 use winit::window::WindowBuilder;
-use winit_input_helper::WinitInputHelper;
+use winit_input_helper::winit_input_helper::WinitInputHelper;
 
 fn main() {
     let mut input = WinitInputHelper::new();
