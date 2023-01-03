@@ -1228,6 +1228,7 @@ dependencies = [
 name = "winit_input_helper"
 version = "0.13.0"
 dependencies = [
+ "fnv",
  "winit",
 ]
 

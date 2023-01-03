@@ -1,8 +1,8 @@
+use crate::current_input::{CurrentInput, KeyAction, MouseAction, TextChar};
+use fnv::FnvHashMap;
+use std::path::PathBuf;
 use winit::dpi::PhysicalSize;
 use winit::event::{Event, VirtualKeyCode, WindowEvent};
-
-use crate::current_input::{CurrentInput, KeyAction, MouseAction, TextChar};
-use std::path::PathBuf;
 
 /// The main struct of the API.
 ///
@@ -345,16 +345,79 @@ impl WinitInputHelper {
 
     // New methods:
 
-    /// Get all keys pressed
-    pub fn get_all_keys_pressed(&self) -> Vec<VirtualKeyCode> {
-        let mut result = Vec::new();
+    /// Get all keys pressed. If key is not in `HashMap` it is presumed to not have been touched by the user for more than a frame.
+    pub fn get_all_key_state(&self) -> FnvHashMap<VirtualKeyCode, KeyState> {
+        let mut result = FnvHashMap::default();
         if let Some(current) = &self.current {
             for action in &current.key_actions {
-                if let KeyAction::Pressed(key_code) = *action {
-                    result.push(key_code);
+                match *action {
+                    KeyAction::Pressed(key_code) => {
+                        if current.key_held[key_code as usize] {
+                            result.insert(key_code, KeyState::Held);
+                        } else {
+                            result.insert(key_code, KeyState::Pressed);
+                        }
+                    }
+                    KeyAction::Released(key_code) => {
+                        result.insert(key_code, KeyState::Released);
+                    }
+                    _ => {}
                 }
             }
         }
         result
+    }
+
+    /// Get all mouse button state. If button is not in `HashMap` it is presumed to not have been touched by the user for more than a frame.
+    pub fn get_all_mouse_button_state(&self) -> FnvHashMap<MouseButton, KeyState> {
+        let mut result = FnvHashMap::default();
+        if let Some(current) = &self.current {
+            for (key_code, state) in current.mouse_held.into_iter().enumerate() {
+                if state {
+                    let button: MouseButton = key_code.try_into().unwrap();
+                    result.insert(button, KeyState::Held);
+                }
+            }
+            for action in &current.mouse_actions {
+                match *action {
+                    MouseAction::Pressed(key_code) => {
+                        let button: MouseButton = key_code.try_into().unwrap();
+                        result.insert(button, KeyState::Pressed);
+                    }
+                    MouseAction::Released(key_code) => {
+                        let button: MouseButton = key_code.try_into().unwrap();
+                        result.insert(button, KeyState::Released);
+                    }
+                }
+            }
+        }
+        result
+    }
+}
+
+#[derive(Hash, PartialEq, Eq)]
+pub enum MouseButton {
+    LeftClick,
+    RightClick,
+    MiddleClick,
+}
+
+pub enum KeyState {
+    Pressed,
+    Released,
+    Held,
+}
+
+impl TryFrom<usize> for MouseButton {
+    type Error = ();
+
+    fn try_from(value: usize) -> Result<Self, Self::Error> {
+        let value = match value {
+            0 => Self::LeftClick,
+            1 => Self::RightClick,
+            2 => Self::MiddleClick,
+            _ => return Err(()),
+        };
+        Ok(value)
     }
 }
