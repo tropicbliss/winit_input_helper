@@ -342,4 +342,19 @@ impl WinitInputHelper {
     pub fn quit(&self) -> bool {
         self.close_requested || self.destroyed
     }
+
+    // New methods:
+
+    /// Get all keys pressed
+    pub fn get_all_keys_pressed(&self) -> Vec<VirtualKeyCode> {
+        let mut result = Vec::new();
+        if let Some(current) = &self.current {
+            for action in &current.key_actions {
+                if let KeyAction::Pressed(key_code) = *action {
+                    result.push(key_code);
+                }
+            }
+        }
+        result
+    }
 }

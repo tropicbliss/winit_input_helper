@@ -1,5 +1,7 @@
 # Winit Input Helper
 
+This is a fork of the original Winit Input Helper that I felt was too high-level for my taste, so I modified it a little. Any info at the bottom is a direct copy and paste of the original project's readme.
+
 [![Crates.io](https://img.shields.io/crates/v/winit_input_helper.svg)](https://crates.io/crates/winit_input_helper)
 [![Docs](https://docs.rs/winit_input_helper/badge.svg)](https://docs.rs/winit_input_helper)
 
