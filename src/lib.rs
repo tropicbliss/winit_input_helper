@@ -1,4 +1,5 @@
 mod current_input;
-pub mod winit_input_helper;
+mod winit_input_helper;
 
 pub use current_input::TextChar;
+pub use winit_input_helper::{KeyState, MouseButton, WinitInputHelper};
