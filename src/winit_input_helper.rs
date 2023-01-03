@@ -369,24 +369,21 @@ impl WinitInputHelper {
     }
 
     /// Get all mouse button state. If button is not in `HashMap` it is presumed to not have been touched by the user for more than a frame.
-    pub fn get_all_mouse_button_state(&self) -> FnvHashMap<MouseButton, KeyState> {
+    pub fn get_all_mouse_button_state(&self) -> FnvHashMap<usize, KeyState> {
         let mut result = FnvHashMap::default();
         if let Some(current) = &self.current {
             for (key_code, state) in current.mouse_held.into_iter().enumerate() {
                 if state {
-                    let button: MouseButton = key_code.try_into().unwrap();
-                    result.insert(button, KeyState::Held);
+                    result.insert(key_code, KeyState::Held);
                 }
             }
             for action in &current.mouse_actions {
                 match *action {
                     MouseAction::Pressed(key_code) => {
-                        let button: MouseButton = key_code.try_into().unwrap();
-                        result.insert(button, KeyState::Pressed);
+                        result.insert(key_code, KeyState::Pressed);
                     }
                     MouseAction::Released(key_code) => {
-                        let button: MouseButton = key_code.try_into().unwrap();
-                        result.insert(button, KeyState::Released);
+                        result.insert(key_code, KeyState::Released);
                     }
                 }
             }
@@ -395,29 +392,8 @@ impl WinitInputHelper {
     }
 }
 
-#[derive(Hash, PartialEq, Eq)]
-pub enum MouseButton {
-    LeftClick,
-    RightClick,
-    MiddleClick,
-}
-
 pub enum KeyState {
     Pressed,
     Released,
     Held,
-}
-
-impl TryFrom<usize> for MouseButton {
-    type Error = ();
-
-    fn try_from(value: usize) -> Result<Self, Self::Error> {
-        let value = match value {
-            0 => Self::LeftClick,
-            1 => Self::RightClick,
-            2 => Self::MiddleClick,
-            _ => return Err(()),
-        };
-        Ok(value)
-    }
 }
